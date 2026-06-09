@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Offline browser tool that batch-signs PDF files with a PKCS#12 certificate. Visible PAdES-style stamp, runs entirely in your browser, no network.">
+  <title>Bulk PDF Signer</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#certBtn">Skip to tool</a>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">PDF</span>
+      <div class="brand-text">
+        <h1 class="brand-title">Bulk PDF Signer</h1>
+        <p class="brand-tagline">Batch-sign PDFs with your .p12 certificate. Fully offline.</p>
+      </div>
+    </div>
+
+    <div class="actions" role="toolbar" aria-label="Signer actions">
+      <button type="button" id="signBtn" class="btn btn-primary" disabled>Sign all</button>
+      <button type="button" id="addBtn" class="btn">Add PDFs</button>
+      <button type="button" id="downloadAllBtn" class="btn" disabled>Download all</button>
+      <button type="button" id="clearBtn" class="btn btn-ghost" disabled>Clear</button>
+      <input type="file" id="pdfInput" class="visually-hidden" accept=".pdf,application/pdf" multiple>
+      <input type="file" id="certInput" class="visually-hidden" accept=".p12,.pfx">
+      <input type="file" id="iconInput" class="visually-hidden" accept=".png,image/png">
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="pane" aria-labelledby="setupLabel">
+      <div class="pane-head">
+        <h2 id="setupLabel" class="pane-title">Certificate &amp; Options</h2>
+        <span class="count" id="setupCount" aria-live="off">No certificate</span>
+      </div>
+      <div class="pane-body">
+        <div class="field">
+          <span class="field-label">Certificate (.p12 / .pfx)</span>
+          <div class="field-row">
+            <button type="button" id="certBtn" class="btn">Choose certificate</button>
+            <span id="certFileName" class="file-name">No file chosen</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="passInput">Certificate password</label>
+          <div class="field-row">
+            <input id="passInput" class="field-input" type="password" autocomplete="off" placeholder="Password">
+            <button type="button" id="unlockBtn" class="btn" disabled>Unlock</button>
+          </div>
+        </div>
+
+        <p id="certInfo" class="cert-info">Choose a certificate and enter its password. The signer name on the stamp is read from the certificate.</p>
+
+        <div class="field">
+          <label class="field-label" for="stampNameInput">Stamp without certificate (optional)</label>
+          <input id="stampNameInput" class="field-input" type="text" placeholder="Name shown on the stamp" autocomplete="off">
+          <span class="field-hint">No certificate needed: the button changes to Stamp all and the PDFs get only the visible stamp -- no verifiable digital signature. An unlocked certificate always takes priority.</span>
+        </div>
+
+        <details class="options">
+          <summary>Stamp options</summary>
+
+          <div class="field">
+            <label class="field-label" for="suffixInput">Output suffix</label>
+            <input id="suffixInput" class="field-input" type="text" value="_signed" autocomplete="off" spellcheck="false">
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="signedByInput">Signed-by label</label>
+            <input id="signedByInput" class="field-input" type="text" value="Digitally signed by:" autocomplete="off">
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="dateLabelInput">Date label</label>
+            <input id="dateLabelInput" class="field-input" type="text" value="Date:" autocomplete="off">
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="reasonInput">Signature reason</label>
+            <input id="reasonInput" class="field-input" type="text" value="Document electronically signed" autocomplete="off">
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="locationInput">Location (optional)</label>
+            <input id="locationInput" class="field-input" type="text" value="" autocomplete="off">
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="formatInput">Timestamp format</label>
+            <input id="formatInput" class="field-input" type="text" value="%Y-%m-%d %H:%M" autocomplete="off" spellcheck="false">
+          </div>
+
+          <div class="field">
+            <span class="field-label">Stamp icon</span>
+            <div class="field-row">
+              <button type="button" id="iconBtn" class="btn">Choose icon (.png)</button>
+              <button type="button" id="iconResetBtn" class="btn btn-ghost" disabled>Reset</button>
+            </div>
+            <span id="iconFileName" class="file-name">Default icon</span>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="pane" aria-labelledby="filesLabel">
+      <div class="pane-head">
+        <h2 id="filesLabel" class="pane-title">Documents</h2>
+        <span class="count" id="filesCount" aria-live="off">Empty</span>
+      </div>
+      <div class="pane-body">
+        <button type="button" id="dropZone" class="dropzone">
+          <span class="dropzone-title">Drop PDF files here</span>
+          <span class="dropzone-sub">or click to choose. Each file is saved as name<span class="mono">_signed</span>.pdf; files already ending in the suffix are skipped.</span>
+        </button>
+        <ul id="fileList" class="file-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="statusbar">
+    <span id="status" class="status" role="status" aria-live="polite">Ready</span>
+    <span class="offline-note">100% offline. Certificate, password and PDFs never leave your browser.</span>
+  </footer>
+
+  <script src="assets/js/vendor/forge.min.js"></script>
+  <script src="assets/js/vendor/pdf-lib.min.js"></script>
+  <script src="assets/js/tool.js"></script>
+</body>
+</html>
